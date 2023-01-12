@@ -25,12 +25,15 @@ io.on("connection", (socket) => {
       socket.broadcast.emit("updatePlayers", players);
     }
 
-    socket.on('playerPoint', (players) => {
-      console.log(players)
-    })
+    socket.on("playerPoint", () => {
+      objective.position.x = Math.ceil((Math.random() * 490) / 10) * 10;
+      objective.position.y = Math.ceil((Math.random() * 490) / 10) * 10;
+      socket.emit("updatePlayers", players);
+      socket.broadcast.emit("updatePlayers", players);
+    });
 
     players.push(player);
-    socket.emit("updatePlayers", players)
+    socket.emit("updatePlayers", players);
     socket.broadcast.emit("updatePlayers", players);
 
     socket.on("movePlayer", (playerMoving) => {

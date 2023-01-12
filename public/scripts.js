@@ -9,14 +9,16 @@ tela.height = 500;
 socket.on("updatePlayers", (updatePlayers) => {
   const objective = updatePlayers.find((player) => player.name == "objective");
   if (objective) {
-    players.forEach((player) => {
-      if (
-        player.position.x == objective.position.x &&
-        player.position.y == objective.position.y
-      ) {
-        console.log("oi");
-      }
-    });
+    updatePlayers
+      .filter((player) => player.name !== "objective")
+      .forEach((player) => {
+        if (
+          player.position.x == objective.position.x &&
+          player.position.y == objective.position.y
+        ) {
+          socket.emit('playerPoint')
+        }
+      });
   }
 
   context.clearRect(0, 0, tela.width, tela.height);
@@ -29,6 +31,8 @@ socket.on("updatePlayers", (updatePlayers) => {
     playerUpdate.draw();
   });
 });
+
+
 
 class Player {
   constructor(position) {
