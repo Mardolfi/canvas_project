@@ -7,7 +7,7 @@ const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
   cors: {
-    origin: process.env.FRONT_APP_URL,
+    origin: 'https://canvas-multiplayer-game-test.herokuapp.com',
     methods: ["GET", "POST"],
   },
 });
