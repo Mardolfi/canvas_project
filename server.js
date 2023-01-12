@@ -1,10 +1,16 @@
+require('dotenv').config()
 const express = require("express");
-const path = require("path");
+const port = process.env.APP_URL || 3333;
 const cors = require('cors')
 
 const app = express();
 const server = require("http").createServer(app);
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: process.env.FRONT_APP_URL,
+    methods: ["GET", "POST"],
+  },
+});
 
 app.use(cors())
 
@@ -50,8 +56,4 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use(express.static(path.resolve(__dirname, "public")));
-
-server.listen(3000, (err) =>
-  err ? console.log(err) : console.log("Listening on 3000")
-);
+server.listen(port, (err) => err ? console.log(err) : console.log(`Listening on ${port}`));
