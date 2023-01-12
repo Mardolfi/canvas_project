@@ -3,8 +3,6 @@ const express = require("express");
 const port = process.env.PORT || 3333;
 const cors = require('cors')
 
-const router = require('./router')
-
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
@@ -15,6 +13,10 @@ const io = require("socket.io")(server, {
 });
 
 app.use(cors())
+
+app.get('/', (req, res) => {
+  res.send('server is up and running')
+})
 
 let players = [];
 
@@ -58,6 +60,5 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use(router)
 
 server.listen(port, (err) => err ? console.log(err) : console.log(`Listening on ${port}`));
