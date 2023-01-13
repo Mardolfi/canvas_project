@@ -31,32 +31,39 @@ let objective = {
 io.on("connection", (socket) => {
   console.log(`Socket: ${socket.id}`);
 
+  socket.on("playerLeft", (name) => {
+    const updatePlayers = players.filter((player) => player.name != name)
+    const players = updatePlayers;
+    socket.emit("updatePlayers", players);
+    socket.broadcast.emit("updatePlayers", players);
+  })
+  
+  socket.on("playerPoint", () => {
+    objective.position.x = Math.ceil((Math.random() * 490) / 10) * 10;
+    objective.position.y = Math.ceil((Math.random() * 490) / 10) * 10;
+    socket.emit("updatePlayers", players);
+    socket.broadcast.emit("updatePlayers", players);
+  });
+
+  socket.on("movePlayer", (playerMoving) => {
+    const playerMovingIndex = players.findIndex(
+      (player) => player.name == playerMoving.name
+    );
+    players.splice(playerMovingIndex, 1, playerMoving);
+    socket.emit("updatePlayers", players);
+    socket.broadcast.emit("updatePlayers", players);
+  });
+
+  if (players.length > 0) {
+    players.push(objective);
+    socket.emit("updatePlayers", players);
+    socket.broadcast.emit("updatePlayers", players);
+  }
+
   socket.on("newPlayer", (player) => {
-    if (players.length > 0) {
-      players.push(objective);
-      socket.emit("updatePlayers", players);
-      socket.broadcast.emit("updatePlayers", players);
-    }
-
-    socket.on("playerPoint", () => {
-      objective.position.x = Math.ceil((Math.random() * 490) / 10) * 10;
-      objective.position.y = Math.ceil((Math.random() * 490) / 10) * 10;
-      socket.emit("updatePlayers", players);
-      socket.broadcast.emit("updatePlayers", players);
-    });
-
     players.push(player);
     socket.emit("updatePlayers", players);
     socket.broadcast.emit("updatePlayers", players);
-
-    socket.on("movePlayer", (playerMoving) => {
-      const playerMovingIndex = players.findIndex(
-        (player) => player.name == playerMoving.name
-      );
-      players.splice(playerMovingIndex, 1, playerMoving);
-      socket.emit("updatePlayers", players);
-      socket.broadcast.emit("updatePlayers", players);
-    });
   });
 });
 
