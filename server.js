@@ -52,7 +52,9 @@ io.on("connection", (socket) => {
     socket.on("movePlayer", (playerMoving) => {
       clearTimeout(timeLeft);
       timeLeft = setTimeout(() => {
-        const updatePlayers = players.filter((players) => players.name != playerMoving.name);
+        const updatePlayers = players.filter(
+          (players) => players.name != playerMoving.name
+        );
         players = updatePlayers;
         socket.emit("updatePlayers", players);
         socket.broadcast.emit("updatePlayers", players);
@@ -68,8 +70,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("playerPoint", () => {
-    objective.position.x = Math.ceil((Math.random() * 490) / 10) * 10;
-    objective.position.y = Math.ceil((Math.random() * 490) / 10) * 10;
+    objective.position = {
+      x: Math.ceil((Math.random() * 490) / 10) * 10,
+      y: Math.ceil((Math.random() * 490) / 10) * 10,
+    };
     socket.emit("updatePlayers", players);
     socket.broadcast.emit("updatePlayers", players);
   });
@@ -83,8 +87,17 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("updatePlayers", players);
   });
 
-  if (players.length > 0) {
+  if (players.length > 1) {
     players.push(objective);
+    socket.emit("updatePlayers", players);
+    socket.broadcast.emit("updatePlayers", players);
+  }
+
+  if (players.length < 1) {
+    const updatedPlayers = players.filter(
+      (player) => player.name != "objective"
+    );
+    players = updatedPlayers;
     socket.emit("updatePlayers", players);
     socket.broadcast.emit("updatePlayers", players);
   }
