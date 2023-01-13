@@ -3,11 +3,13 @@ const express = require("express");
 const port = process.env.PORT || 3333;
 const cors = require('cors')
 
+// 'https://canvas-multiplayer-game-test.herokuapp.com'
+
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
   cors: {
-    origin: 'https://canvas-multiplayer-game-test.herokuapp.com',
+    origin: 'http://localhost:3000',
     methods: ["GET", "POST"],
   },
 });
