@@ -1,7 +1,7 @@
-require('dotenv').config()
+require("dotenv").config();
 const express = require("express");
 const port = process.env.PORT || 3333;
-const cors = require('cors')
+const cors = require("cors");
 
 // 'https://canvas-multiplayer-game-test.herokuapp.com'
 
@@ -9,16 +9,16 @@ const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
 
-app.use(cors())
+app.use(cors());
 
-app.get('/', (req, res) => {
-  res.send('server is up and running')
-})
+app.get("/", (req, res) => {
+  res.send("server is up and running");
+});
 
 let players = [];
 
@@ -30,16 +30,43 @@ let objective = {
   },
 };
 
+let time = 10000;
+
 io.on("connection", (socket) => {
   console.log(`Socket: ${socket.id}`);
 
-  socket.on("playerLeft", (name) => {
-    const updatePlayers = players.filter((player) => player.name != name)
-    const players = updatePlayers;
+  socket.on("newPlayer", (player) => {
+    players.push(player);
     socket.emit("updatePlayers", players);
     socket.broadcast.emit("updatePlayers", players);
-  })
-  
+
+    let timeLeft = setTimeout(() => {
+      const updatePlayers = players.filter(
+        (players) => players.name != player.name
+      );
+      players = updatePlayers;
+      socket.emit("updatePlayers", players);
+      socket.broadcast.emit("updatePlayers", players);
+    }, time);
+
+    socket.on("movePlayer", (playerMoving) => {
+      clearTimeout(timeLeft);
+      timeLeft = setTimeout(() => {
+        const updatePlayers = players.filter((players) => players.name != playerMoving.name);
+        players = updatePlayers;
+        socket.emit("updatePlayers", players);
+        socket.broadcast.emit("updatePlayers", players);
+      }, time);
+    });
+  });
+
+  socket.on("playerLeft", (name) => {
+    const updatePlayers = players.filter((player) => player.name != name);
+    players = updatePlayers;
+    socket.emit("updatePlayers", players);
+    socket.broadcast.emit("updatePlayers", players);
+  });
+
   socket.on("playerPoint", () => {
     objective.position.x = Math.ceil((Math.random() * 490) / 10) * 10;
     objective.position.y = Math.ceil((Math.random() * 490) / 10) * 10;
@@ -61,13 +88,8 @@ io.on("connection", (socket) => {
     socket.emit("updatePlayers", players);
     socket.broadcast.emit("updatePlayers", players);
   }
-
-  socket.on("newPlayer", (player) => {
-    players.push(player);
-    socket.emit("updatePlayers", players);
-    socket.broadcast.emit("updatePlayers", players);
-  });
 });
 
-
-server.listen(port, (err) => err ? console.log(err) : console.log(`Listening on ${port}`));
+server.listen(port, (err) =>
+  err ? console.log(err) : console.log(`Listening on ${port}`)
+);
